@@ -1,3 +1,3 @@
 # AstroRoid
 
-The space shooter game but better
+The space shooter game but better (in progress)
