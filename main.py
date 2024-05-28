@@ -13,13 +13,13 @@ class Game:
         self.display = pygame.Surface((self.surfW, self.surfH))
         self.assets = {
             'asteroids': load_images("asteroids", scaleFactor=1.2),
-            'rockets/blue': load_images("rocket/blue"),
-            'rockets/dark': load_images("rocket/dark"),
-            'rockets/red': load_images("rocket/red"),
+            'rockets/blue': Animation(load_images("rocket/blue")),
+            'rockets/dark': Animation(load_images("rocket/dark")),
+            'rockets/red': Animation(load_images("rocket/red")),
             'shadows/asteroid': load_images("shadows/asteroids"),
-            'shadows/spaceship': load_images("shadows/spaceship"),
-            'ships/blue': load_images("ship/blue"),
-            'ships/red': load_images("ship/red")
+            'shadows/spaceship': Animation(load_images("shadows/spaceship")),
+            'ships/blue': Animation(load_images("ship/blue")),
+            'ships/red': Animation(load_images("ship/red"))
         }
 
         self.player = Player(self.display, [10, 20], "blue", self, True)
@@ -81,7 +81,6 @@ class Game:
                     tempRect = pygame.Rect(pos[0], pos[1], astWidth, astHeight)
                     for rect in rects:
                         if rect.colliderect(tempRect):
-                            print('cancel')
                             cancel = True
                     for index, asteroid in enumerate(self.asteroids):
                         self.poss[index][1] = asteroid.pos[1]
