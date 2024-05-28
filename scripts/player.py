@@ -1,6 +1,6 @@
 import pygame
 class Player:
-    def __init__(self, window, pos, color, game, shadows = True):
+    def __init__(self, window, pos: list, color, game, shadows = True):
         self.pos = pos
         self.window = window
         self.game = game

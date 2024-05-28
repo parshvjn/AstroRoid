@@ -2,6 +2,7 @@ import pygame, sys, random
 from scripts.player import Player
 from scripts.asteroids import Asteroid
 from scripts.utils import *
+from scripts.bullet import BulletManager
 
 class Game:
     def __init__(self):
@@ -28,6 +29,7 @@ class Game:
         self.asteroids = []
         self.astIter = 0
         self.poss = []
+        self.Bullet = BulletManager(self, self.display, "blue")
 
 
     def main(self):
@@ -48,6 +50,8 @@ class Game:
                         self.movement1[0] = True
                     if event.key == pygame.K_DOWN:
                         self.movement1[1] = True
+                    if event.key == pygame.K_SPACE:
+                        self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
@@ -57,6 +61,8 @@ class Game:
                         self.movement1[0] = False
                     if event.key == pygame.K_DOWN:
                         self.movement1[1] = False
+            self.Bullet.update()
+            self.Bullet.render()
             self.player.update(self.movement, self.movement1)
             self.player.render()
             for asteroid in self.asteroids:

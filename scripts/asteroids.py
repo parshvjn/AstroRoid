@@ -1,5 +1,5 @@
 class Asteroid:
-    def __init__(self, game, window, size, pos, shadow = True):
+    def __init__(self, game, window, size, pos: list, shadow = True):
         self.size = size
         self.speed = 1
         self.shadow = shadow
