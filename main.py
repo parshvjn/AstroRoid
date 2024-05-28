@@ -13,14 +13,16 @@ class Game:
         self.clock = pygame.time.Clock()
         self.display = pygame.Surface((self.surfW, self.surfH))
         self.assets = {
-            'asteroids': load_images("asteroids", scaleFactor=1.2),
+            'asteroids': load_images("asteroids", scaleFactor=1),
+            'asteroidsM': load_images("asteroids", scaleFactor=1, mask = True),
             'rockets/blue': Animation(load_images("rocket/blue")),
             'rockets/dark': Animation(load_images("rocket/dark")),
             'rockets/red': Animation(load_images("rocket/red")),
             'shadows/asteroid': load_images("shadows/asteroids"),
             'shadows/spaceship': Animation(load_images("shadows/spaceship")),
             'ships/blue': Animation(load_images("ship/blue")),
-            'ships/red': Animation(load_images("ship/red"))
+            'ships/red': Animation(load_images("ship/red")),
+            'shipsM': Animation(load_images("shipMask", mask= True))
         }
 
         self.player = Player(self.display, [10, 20], "blue", self, True)
@@ -37,6 +39,7 @@ class Game:
         self.i = 0
         while self.running:
             self.display.fill((255, 56, 48))
+            # self.display.fill((0,0,0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False

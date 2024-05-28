@@ -8,6 +8,9 @@ class Player:
         self.speed = 2
         self.animation = self.game.assets[f'ships/{self.color}'].copy()
         self.animationShadow = self.game.assets['shadows/spaceship'].copy()
+        self.animationMask = self.game.assets['shipsM'].copy()
+
+        self.mask = pygame.mask.from_surface(self.animationMask.img())
     
     def colorChange(self):
         self.color = "red" if self.color == "blue" else "blue"
@@ -25,6 +28,7 @@ class Player:
         
         self.animation.update()
         self.animationShadow.update()
+        self.animationMask.update()
 
     def render(self):
         self.window.blit(self.animationShadow.img(), (self.pos[0] - 4, self.pos[1]+3))
