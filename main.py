@@ -6,6 +6,7 @@ from scripts.bullet import BulletManager
 
 class Game:
     def __init__(self):
+        pygame.init()
         self.winW, self.winH = 1280, 960
         self.surfW, self.surfH = 320, 240
         self.window = pygame.display.set_mode((self.winW, self.winH))
@@ -15,9 +16,10 @@ class Game:
         self.assets = {
             'asteroids': load_images("asteroids", scaleFactor=1),
             'asteroidsM': load_images("asteroids", scaleFactor=1, mask = True),
-            'rockets/blue': Animation(load_images("rocket/blue")),
-            'rockets/dark': Animation(load_images("rocket/dark")),
-            'rockets/red': Animation(load_images("rocket/red")),
+            'rockets/blue': Animation(load_images("rocket/blue"), img_dur=7),
+            'rocketsM': Animation(load_images("rocket/blue", mask = True), img_dur=7),
+            'rockets/dark': Animation(load_images("rocket/dark"), img_dur=7),
+            'rockets/red': Animation(load_images("rocket/red"), img_dur=7),
             'shadows/asteroid': load_images("shadows/asteroids"),
             'shadows/spaceship': Animation(load_images("shadows/spaceship")),
             'ships/blue': Animation(load_images("ship/blue")),
@@ -32,14 +34,18 @@ class Game:
         self.astIter = 0
         self.poss = []
         self.Bullet = BulletManager(self, self.display, "blue")
+        self.font = pygame.font.SysFont("assets/fonts/Poppins-SemiBold.ttf", 20)
 
+    def draw_text(self, text, font, text_col, x, y, surf):
+        img = font.render(text, True, text_col)
+        surf.blit(img, (x, y))
 
     def main(self):
         self.running = True
         self.i = 0
         while self.running:
-            self.display.fill((255, 56, 48))
-            # self.display.fill((0,0,0))
+            # self.display.fill((255, 56, 48))
+            self.display.fill((0,0,0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -65,7 +71,10 @@ class Game:
                     if event.key == pygame.K_DOWN:
                         self.movement1[1] = False
             self.Bullet.update()
-            self.Bullet.render()
+            index = 0
+            asts = self.Bullet.render([[asteroid.mask, asteroid.pos[0], asteroid.pos[1], asteroid.index, False] for asteroid in self.asteroids])
+            for ast in asts: # ! give original self.asteroids to bullet class and remove item directly from there
+                if ast[4]: print(ast);self.asteroids #  remove the asteroid that has the index (ast[3])
             self.player.update(self.movement, self.movement1)
             self.player.render()
             for asteroid in self.asteroids:
@@ -100,6 +109,8 @@ class Game:
                 # print(rects)
             
             self.i += 1
+
+            self.draw_text("FPS: " + str(round(self.clock.get_fps(), 2)), self.font, pygame.Color("azure"), 10, 10, self.display)
 
             self.window.blit(pygame.transform.scale(self.display, self.window.get_size()), (0,0))
             pygame.display.update()
