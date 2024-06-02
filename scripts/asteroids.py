@@ -7,7 +7,6 @@ class Asteroid:
         self.window = window
         self.game = game
         self.pos = pos
-        self.index = index
         self.mask = pygame.mask.from_surface(self.game.assets["asteroidsM"][self.size-1])
     
     def update(self):

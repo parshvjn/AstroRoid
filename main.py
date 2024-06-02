@@ -72,9 +72,7 @@ class Game:
                         self.movement1[1] = False
             self.Bullet.update()
             index = 0
-            asts = self.Bullet.render([[asteroid.mask, asteroid.pos[0], asteroid.pos[1], asteroid.index, False] for asteroid in self.asteroids])
-            for ast in asts: # ! give original self.asteroids to bullet class and remove item directly from there
-                if ast[4]: print(ast);self.asteroids #  remove the asteroid that has the index (ast[3])
+            self.Bullet.render(self.asteroids)
             self.player.update(self.movement, self.movement1)
             self.player.render()
             for asteroid in self.asteroids:

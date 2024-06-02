@@ -19,7 +19,7 @@ class Bullet:
         outline = [(p[0] + self.bpos[0], p[1] + self.bpos[1]) for p in mask.outline(every=1)]
         pygame.draw.lines(self.window, (255, 0, 255), False, outline, 3)
         self.window.blit(self.animation.img(), self.bpos)
-        return [mask, self.bpos[0], self.bpos[1]]
+        return mask
 
 class BulletManager:
     def __init__(self, game, window, color):
@@ -51,10 +51,14 @@ class BulletManager:
             if self.timer.count(): self.timer = None
     
     def render(self, asteroids = None):
+        # print(self.bullets)
         for bullet in self.bullets:
             mask = bullet.render()
             for mas in asteroids:
-                print(mas[3])
-                overlap = mas[0].overlap(mask[0], (bullet.bpos[0]-mas[1], bullet.bpos[1]-mas[2]))
-                if overlap != None: self.bullets.remove(bullet);mas[4] = True
+                overlap = mas.mask.overlap(mask, (bullet.bpos[0]-mas.pos[0], bullet.bpos[1]-mas.pos[1]))
+                if overlap != None: 
+                    self.bullets.remove(bullet)
+                    asteroids.remove(mas)
+                    break
+
         return asteroids
