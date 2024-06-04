@@ -16,8 +16,8 @@ class Bullet:
     
     def render(self):
         mask = pygame.mask.from_surface(self.animationM.img())
-        outline = [(p[0] + self.bpos[0], p[1] + self.bpos[1]) for p in mask.outline(every=1)]
-        pygame.draw.lines(self.window, (255, 0, 255), False, outline, 3)
+        # outline = [(p[0] + self.bpos[0], p[1] + self.bpos[1]) for p in mask.outline(every=1)]
+        # pygame.draw.lines(self.window, (255, 0, 255), False, outline, 3)
         self.window.blit(self.animation.img(), self.bpos)
         return mask
 
@@ -30,7 +30,7 @@ class BulletManager:
         self.animation = self.game.assets[f"rockets/{self.color}"].copy()
         self.animationM = self.game.assets["rocketsM"].copy()
         self.speed = 1.5
-        self.cooldown = 0
+        self.cooldown = 1
         self.timer = None
     
     def setColor(self, color):
@@ -57,6 +57,7 @@ class BulletManager:
             for mas in asteroids:
                 overlap = mas.mask.overlap(mask, (bullet.bpos[0]-mas.pos[0], bullet.bpos[1]-mas.pos[1]))
                 if overlap != None: 
+                    self.game.poss.remove([mas.pos[0], mas.pos[1], self.game.assets["asteroids"][mas.size].get_width(), self.game.assets["asteroids"][mas.size].get_height()])
                     self.bullets.remove(bullet)
                     asteroids.remove(mas)
                     break

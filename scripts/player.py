@@ -17,9 +17,9 @@ class Player:
         self.animation = self.game.assets[f'ships/{self.color}'].copy()
     
     def update(self, movement = [0,0], movement1 = [0,0]):
-        if movement[0] and self.pos[0] >= 5:
+        if movement[0]:
             self.pos[0] -= self.speed
-        if movement[1] and self.pos[0] <= self.game.surfW - self.animation.img().get_width() - 5:
+        if movement[1]:
             self.pos[0] += self.speed
         if movement1[0] and self.pos[1] >= 5:
             self.pos[1] -= self.speed
@@ -31,5 +31,7 @@ class Player:
         self.animationMask.update()
 
     def render(self):
-        self.window.blit(self.animationShadow.img(), (self.pos[0] - 4, self.pos[1]+3))
-        self.window.blit(self.animation.img(), self.pos)
+        offset = self.pos[0] - self.game.surfW if self.pos[0] > self.game.surfW else 0
+        self.window.blit(self.animationShadow.img(), (self.pos[0] - 4 - offset, self.pos[1]+3))
+        self.window.blit(self.animation.img(), (self.pos[0]-offset, self.pos[1]))
+        print((self.pos[0]-offset, self.pos[1]), self.game.surfW)

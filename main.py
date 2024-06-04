@@ -27,11 +27,10 @@ class Game:
             'shipsM': Animation(load_images("shipMask", mask= True))
         }
 
-        self.player = Player(self.display, [10, 20], "blue", self, True)
+        self.player = Player(self.display, [(self.surfW/2)-(self.assets['ships/blue'].images[0].get_width()/2), self.surfH-self.assets["ships/blue"].images[0].get_height()-2], "blue", self, True)
         self.movement = [False, False]
         self.movement1 = [False, False]
         self.asteroids = []
-        self.astIter = 0
         self.poss = []
         self.Bullet = BulletManager(self, self.display, "blue")
         self.font = pygame.font.SysFont("assets/fonts/Poppins-SemiBold.ttf", 20)
@@ -44,8 +43,8 @@ class Game:
         self.running = True
         self.i = 0
         while self.running:
-            # self.display.fill((255, 56, 48))
-            self.display.fill((0,0,0))
+            self.display.fill((255, 56, 48))
+            # self.display.fill((0,0,0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -71,11 +70,13 @@ class Game:
                     if event.key == pygame.K_DOWN:
                         self.movement1[1] = False
             self.Bullet.update()
-            index = 0
             self.Bullet.render(self.asteroids)
             self.player.update(self.movement, self.movement1)
+            self.player.pos[0] %= self.surfW
             self.player.render()
             for asteroid in self.asteroids:
+                # if self.i <180: # i use this to pause the asteroids' movement, so i can test something
+                #     asteroid.update()
                 asteroid.update()
                 asteroid.render()
                 if asteroid.pos[1] -2 >= self.surfH:
@@ -84,7 +85,6 @@ class Game:
             
             if self.i % 15 == 0:
                 rects = []
-                self.astIter += 1
                 for x in range(3):
                     cancel = False
                     ast = random.randint(0, 5)
@@ -98,8 +98,8 @@ class Game:
                     for rect in rects:
                         if rect.colliderect(tempRect):
                             cancel = True
-                    for index, asteroid in enumerate(self.asteroids):
-                        self.poss[index][1] = asteroid.pos[1]
+                    # for index, asteroid in enumerate(self.asteroids):
+                    #     self.poss[index][1] = asteroid.pos[1]
                     for pos1 in self.poss:
                         rects.append(pygame.Rect(pos1[0], pos1[1], pos1[2], pos1[3]))
 
