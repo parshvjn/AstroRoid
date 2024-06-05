@@ -3,6 +3,7 @@ from scripts.player import Player
 from scripts.asteroids import Asteroid
 from scripts.utils import *
 from scripts.bullet import BulletManager
+from scripts.button import Button
 
 class Game:
     def __init__(self):
@@ -20,7 +21,7 @@ class Game:
             'rocketsM': Animation(load_images("rocket/blue", mask = True), img_dur=7),
             'rockets/dark': Animation(load_images("rocket/dark"), img_dur=7),
             'rockets/red': Animation(load_images("rocket/red"), img_dur=7),
-            'shadows/asteroid': load_images("shadows/asteroids"),
+            'shadows/asteroid': load_images("shadows/asteroids", alpha= 128),
             'shadows/spaceship': Animation(load_images("shadows/spaceship")),
             'ships/blue': Animation(load_images("ship/blue")),
             'ships/red': Animation(load_images("ship/red")),
@@ -35,9 +36,29 @@ class Game:
         self.Bullet = BulletManager(self, self.display, "blue")
         self.font = pygame.font.SysFont("assets/fonts/Poppins-SemiBold.ttf", 20)
 
+        #buttons
+        self.playb = Button("Ignite?", 75, 30, (100, 100), 2, self.font, self.display, self)
+        self.score = 0
+
     def draw_text(self, text, font, text_col, x, y, surf):
         img = font.render(text, True, text_col)
         surf.blit(img, (x, y))
+    
+    def menu(self):
+        while True:
+            self.display.fill((255, 56, 48))
+            self.playb.draw("game")
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()
+            self.window.blit(pygame.transform.scale(self.display, self.window.get_size()), (0,0))
+            pygame.display.update()
+                    
 
     def main(self):
         self.running = True
@@ -60,6 +81,10 @@ class Game:
                         self.movement1[1] = True
                     if event.key == pygame.K_SPACE:
                         self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
+                    if event.key == pygame.K_ESCAPE:
+                        self.running = False
+                        self.movement = [False, False]
+                        self.movement1 = [False, False]
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
@@ -109,11 +134,12 @@ class Game:
             self.i += 1
 
             self.draw_text("FPS: " + str(round(self.clock.get_fps(), 2)), self.font, pygame.Color("azure"), 10, 10, self.display)
+            self.draw_text("Score: " + str(self.score), self.font, pygame.Color("azure"), 10, 22, self.display)
+            self.score += 1
 
             self.window.blit(pygame.transform.scale(self.display, self.window.get_size()), (0,0))
             pygame.display.update()
             self.clock.tick(60)
-        pygame.quit()
 
 if __name__ == '__main__':
-    Game().main()
+    Game().menu()

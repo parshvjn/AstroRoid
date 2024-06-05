@@ -34,4 +34,4 @@ class Player:
         offset = self.pos[0] - self.game.surfW if self.pos[0] > self.game.surfW else 0
         self.window.blit(self.animationShadow.img(), (self.pos[0] - 4 - offset, self.pos[1]+3))
         self.window.blit(self.animation.img(), (self.pos[0]-offset, self.pos[1]))
-        print((self.pos[0]-offset, self.pos[1]), self.game.surfW)
+        # print((self.pos[0]-offset, self.pos[1]), self.game.surfW)

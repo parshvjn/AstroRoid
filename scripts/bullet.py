@@ -29,8 +29,8 @@ class BulletManager:
         self.bullets = []
         self.animation = self.game.assets[f"rockets/{self.color}"].copy()
         self.animationM = self.game.assets["rocketsM"].copy()
-        self.speed = 1.5
-        self.cooldown = 1
+        self.speed = 2.5
+        self.cooldown = 0
         self.timer = None
     
     def setColor(self, color):

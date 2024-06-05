@@ -19,6 +19,7 @@ class Asteroid:
         self.game.Bullet.bullets.clear()
         self.game.Bullet.timer = None
         self.game.i = 0
+        self.game.score = 0
 
 
 
@@ -27,5 +28,6 @@ class Asteroid:
         overlap = self.mask.overlap(self.game.player.mask, (self.game.player.pos[0]-self.pos[0], self.game.player.pos[1]-self.pos[1]))
         # outline = [(p[0] + self.pos[0], p[1] + self.pos[1]) for p in self.mask.outline(every=1)]
         # pygame.draw.lines(self.window, (255, 0, 255), False, outline, 3)
-        if overlap != None: print(random.randint(1,10)); self.resetGame()
+        if overlap != None: self.resetGame()
+        self.window.blit(self.game.assets['shadows/asteroid'][self.size-1], (self.pos[0]-4, self.pos[1]+3))
         self.window.blit(self.game.assets["asteroids"][self.size-1], self.pos)

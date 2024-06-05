@@ -2,16 +2,17 @@ import pygame, os
 
 BASE_IMG_PATH = 'assets/'
 
-def load_image(path, scaleFactor = 1, mask = False):
+def load_image(path, scaleFactor = 1, mask = False, alpha = None):
     img = pygame.image.load(BASE_IMG_PATH + path).convert() #.covert() makes it more efficient for rendering(performance)
     if scaleFactor != 1: img = pygame.transform.scale(img, (img.get_width()*scaleFactor, img.get_height()*scaleFactor))
     if not mask: img.set_colorkey((0,0,0))
+    if alpha != None: img.set_alpha(alpha)
     return img
 
-def load_images(path, scaleFactor = 1, mask = False):
+def load_images(path, scaleFactor = 1, mask = False, alpha = None):
     images = []
     for img_name in sorted(os.listdir(BASE_IMG_PATH + path)): #takes a path and gives all files in there
-        images.append(load_image(path + '/' + img_name, scaleFactor, mask))
+        images.append(load_image(path + '/' + img_name, scaleFactor, mask, alpha))
     return images
 
 class Animation:
