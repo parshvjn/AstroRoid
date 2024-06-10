@@ -9,6 +9,7 @@ class Player:
         self.animation = self.game.assets[f'ships/{self.color}'].copy()
         self.animationShadow = self.game.assets['shadows/spaceship'].copy()
         self.animationMask = self.game.assets['shipsM'].copy()
+        self.temppos = [(self.game.surfW/2)-(self.game.assets['ships/blue'].images[0].get_width()/2), self.game.surfH-self.game.assets["ships/blue"].images[0].get_height()-2]
 
         self.mask = pygame.mask.from_surface(self.animationMask.img())
     
@@ -30,8 +31,10 @@ class Player:
         self.animationShadow.update()
         self.animationMask.update()
 
-    def render(self):
+    def render(self, menu = False):
         offset = self.pos[0] - self.game.surfW if self.pos[0] > self.game.surfW else 0
-        self.window.blit(self.animationShadow.img(), (self.pos[0] - 4 - offset, self.pos[1]+3))
-        self.window.blit(self.animation.img(), (self.pos[0]-offset, self.pos[1]))
+        if menu: self.window.blit(self.animation.img(), self.temppos)
+        else:
+            self.window.blit(self.animationShadow.img(), (self.pos[0] - 4 - offset, self.pos[1]+3))
+            self.window.blit(self.animation.img(), (self.pos[0]-offset, self.pos[1]))
         # print((self.pos[0]-offset, self.pos[1]), self.game.surfW)

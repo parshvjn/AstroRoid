@@ -21,11 +21,13 @@ class Game:
             'rocketsM': Animation(load_images("rocket/blue", mask = True), img_dur=7),
             'rockets/dark': Animation(load_images("rocket/dark"), img_dur=7),
             'rockets/red': Animation(load_images("rocket/red"), img_dur=7),
-            'shadows/asteroid': load_images("shadows/asteroids", alpha= 128),
+            'shadows/asteroid': load_images("shadows/asteroids", alpha= 80),
             'shadows/spaceship': Animation(load_images("shadows/spaceship")),
-            'ships/blue': Animation(load_images("ship/blue")),
+            'ships/blue': Animation(load_images("ship/blue")),  
             'ships/red': Animation(load_images("ship/red")),
-            'shipsM': Animation(load_images("shipMask", mask= True))
+            'shipsM': Animation(load_images("shipMask", mask= True)),
+            'space': [Animation(load_images(f"space/{x}", scaleFactor=0.5), img_dur=15) for x in range(1, 10)],
+            'title': load_image("title.png", scaleFactor= 0.5)
         }
 
         self.player = Player(self.display, [(self.surfW/2)-(self.assets['ships/blue'].images[0].get_width()/2), self.surfH-self.assets["ships/blue"].images[0].get_height()-2], "blue", self, True)
@@ -35,19 +37,66 @@ class Game:
         self.poss = []
         self.Bullet = BulletManager(self, self.display, "blue")
         self.font = pygame.font.SysFont("assets/fonts/Poppins-SemiBold.ttf", 20)
-
+                                                     
         #buttons
-        self.playb = Button("Ignite?", 75, 30, (100, 100), 2, self.font, self.display, self)
+        self.playb = Button("Ignite?", 60, 20, ((self.surfW/2)-30, self.surfH + 25), 4, self.font, self.display, self)
         self.score = 0
+        self.highscore = 0
+        data = open('saved.txt')
+        try:
+            self.highscore = int(data.read().split(':')[-1])
+        except:
+            pass
+        data.close()
 
     def draw_text(self, text, font, text_col, x, y, surf):
         img = font.render(text, True, text_col)
         surf.blit(img, (x, y))
     
     def menu(self):
+        self.i2 = 0
+        self.i3 = 0
+        self.bgAnim = self.assets["space"][random.randint(0,8)].copy()
+        self.playbPressed = False
+        titley = -40
         while True:
-            self.display.fill((255, 56, 48))
-            self.playb.draw("game")
+            self.bgAnim.update()
+            self.display.blit(self.bgAnim.img(), (0,0))
+            self.display.blit(self.bgAnim.img(), (160,0))
+            self.display.blit(self.bgAnim.img(), (0,160))
+            self.display.blit(self.bgAnim.img(), (160,160))
+            titley = min(titley + 2, 75)
+            self.display.blit(self.assets["title"],(68, titley))
+            # print(titley)
+            #menu animation:
+            if self.i2 >= 10 and self.i2 <= 55:
+                self.playb.draw("game", 2.5, 0)
+            elif self.i2 >= 56 and self.i2 <= 107:
+                self.playb.draw("game", 0, (self.i2 - 56)*5)
+            else:
+                if not self.playbPressed:
+                    self.playb.draw("game")
+                    if self.playb.pressed: self.playbPressed = True
+                else:
+                    if self.i3 >= 0 and self.i3 <= 10:
+                        self.playb.draw("game", 0, 255, -3)
+                        self.player.temppos[1] -= 4
+                    elif self.i3 >= 11 and self.i3 <= 90:
+                        self.playb.draw("game", 0, 255,6)
+                        self.player.temppos[1] -= 4
+                    else:
+                        self.playb.draw("game", 0, 255,0, True)
+                        self.player.temppos = [(self.surfW/2)-(self.assets['ships/blue'].images[0].get_width()/2), self.surfH-self.assets["ships/blue"].images[0].get_height()-2]
+                        self.i3 = 0
+                        self.playb.top_rect = pygame.Rect(130, 261, 60, 20)
+                        self.playbPressed = False
+                        self.playb.pressed = False
+                    self.i3 += 1
+
+            self.player.update()
+            self.player.render(True)
+            # print(self.player.temppos)
+            #######
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -56,7 +105,9 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         sys.exit()
+            if self.i2 < 108: self.i2 += 1
             self.window.blit(pygame.transform.scale(self.display, self.window.get_size()), (0,0))
+            self.clock.tick(60)
             pygame.display.update()
                     
 
@@ -85,6 +136,7 @@ class Game:
                         self.running = False
                         self.movement = [False, False]
                         self.movement1 = [False, False]
+                        self.bgAnim = self.assets["space"][random.randint(0,8)].copy()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
@@ -109,32 +161,17 @@ class Game:
                     self.poss.remove([asteroid.pos[0], asteroid.pos[1], self.assets["asteroids"][asteroid.size].get_width(), self.assets["asteroids"][asteroid.size].get_height()])
             
             if self.i % 15 == 0:
-                rects = []
                 for x in range(3):
-                    cancel = False
                     ast = random.randint(0, 5)
                     astWidth, astHeight = self.assets["asteroids"][ast].get_width(), self.assets["asteroids"][ast].get_height()
                     pos = [random.randint(0, self.surfW - 1 - astWidth), -astHeight - 1, astWidth, astHeight]
-                    # for pos1 in self.poss:
-                    #     if pos[0] + self.assets["asteroids"][ast].get_width()> pos1[0] and pos[0] < pos1[0] + self.assets["asteroids"][ast].get_width():
-                    #         if pos[1] + self.assets["asteroids"][ast].get_height() > pos1[1] and pos[1] < pos1[1] + self.assets["asteroids"][ast].get_height():
-                    #             cancel = True
-                    tempRect = pygame.Rect(pos[0], pos[1], astWidth, astHeight)
-                    for rect in rects:
-                        if rect.colliderect(tempRect):
-                            cancel = True
-                    # for index, asteroid in enumerate(self.asteroids):
-                    #     self.poss[index][1] = asteroid.pos[1]
-                    for pos1 in self.poss:
-                        rects.append(pygame.Rect(pos1[0], pos1[1], pos1[2], pos1[3]))
-
-                    if not cancel: self.asteroids.append(Asteroid(self, self.display, ast, pos)); self.poss.append(pos)
-                # print(rects)
+                    self.asteroids.append(Asteroid(self, self.display, ast, pos)); self.poss.append(pos)
             
             self.i += 1
 
             self.draw_text("FPS: " + str(round(self.clock.get_fps(), 2)), self.font, pygame.Color("azure"), 10, 10, self.display)
             self.draw_text("Score: " + str(self.score), self.font, pygame.Color("azure"), 10, 22, self.display)
+            self.draw_text("High: " + str(self.highscore), self.font, pygame.Color("azure"), 10, 34, self.display)
             self.score += 1
 
             self.window.blit(pygame.transform.scale(self.display, self.window.get_size()), (0,0))
