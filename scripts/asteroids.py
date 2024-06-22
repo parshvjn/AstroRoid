@@ -8,7 +8,6 @@ class Asteroid:
         self.game = game
         self.pos = pos
         self.mask = pygame.mask.from_surface(self.game.assets["asteroidsM"][self.size-1])
-        self.killCounter = 0
     
     def update(self):
         self.pos[1] += self.speed
@@ -26,9 +25,7 @@ class Asteroid:
         data.close()
         self.game.score = 0
         self.game.gameOn = False
-        self.killCounter += 1
-        if self.killCounter == 2:
-            self.game.firstTime = False
+        self.game.killCounter +=1
 
 
 
