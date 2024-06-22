@@ -4,10 +4,12 @@ from scripts.asteroids import Asteroid
 from scripts.utils import *
 from scripts.bullet import BulletManager
 from scripts.button import Button
+from scripts.menu import SMenu
 
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.joystick.init()
         self.winW, self.winH = 1280, 960
         self.surfW, self.surfH = 320, 240
         self.window = pygame.display.set_mode((self.winW, self.winH))
@@ -37,6 +39,8 @@ class Game:
         self.poss = []
         self.Bullet = BulletManager(self, self.display, "blue")
         self.font = pygame.font.SysFont("assets/fonts/Poppins-SemiBold.ttf", 20)
+
+        self.firstTime = True
                                                      
         #buttons
         self.playb = Button("Ignite?", 60, 20, ((self.surfW/2)-30, self.surfH + 25), 4, self.font, self.display, self)
@@ -48,6 +52,11 @@ class Game:
         except:
             pass
         data.close()
+
+        self.smenu = SMenu(self, self.display)
+        self.menuBpos = (self.surfW - self.smenu.open - 30, 100+self.smenu.sH/2-20)
+        self.menuB = Button("<", 20, 40, self.menuBpos, 1, self.font, self.display, self)
+        self.joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
 
     def draw_text(self, text, font, text_col, x, y, surf):
         img = font.render(text, True, text_col)
@@ -114,6 +123,7 @@ class Game:
     def main(self):
         self.running = True
         self.i = 0
+        self.gameOn = True
         while self.running:
             self.display.fill((255, 56, 48))
             # self.display.fill((0,0,0))
@@ -121,22 +131,35 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                     sys.exit()
+
+                if event.type == pygame.JOYDEVICEADDED:
+                    self.joy = pygame.joystick.Joystick(event.device_index)
+                    self.joysticks.append(self.joy)
+                    self.joy.rumble(1, 1, 100)
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        self.movement[0] = True
-                    if event.key == pygame.K_RIGHT:
-                        self.movement[1] = True
-                    if event.key == pygame.K_UP:
-                        self.movement1[0] = True
-                    if event.key == pygame.K_DOWN:
-                        self.movement1[1] = True
-                    if event.key == pygame.K_SPACE:
-                        self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
+                    if self.gameOn:
+                        if event.key == pygame.K_LEFT:
+                            self.movement[0] = True
+                        if event.key == pygame.K_RIGHT:
+                            self.movement[1] = True
+                        if event.key == pygame.K_UP:
+                            self.movement1[0] = True
+                        if event.key == pygame.K_DOWN:
+                            self.movement1[1] = True
+                        if event.key == pygame.K_SPACE:
+                            self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
                         self.movement = [False, False]
                         self.movement1 = [False, False]
                         self.bgAnim = self.assets["space"][random.randint(0,8)].copy()
+                    if event.key == pygame.K_SPACE and not self.gameOn:
+                        self.gameOn = True
+                        self.smenu.open = 0
+                        self.menuB.top_rect.x, self.menuB.top_rect.y = self.menuBpos
+                        self.menuB.bottom_rect.x, self.menuB.bottom_rect.y = self.menuBpos
+                        self.smenu.stage = None
+                        self.menuB.text = '<'
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
@@ -146,11 +169,75 @@ class Game:
                         self.movement1[0] = False
                     if event.key == pygame.K_DOWN:
                         self.movement1[1] = False
+            if self.gameOn:
+                for joystick in self.joysticks:
+                    horiz_move = joystick.get_axis(0)
+                    vert_move = joystick.get_axis(1)                    
+                    fire = joystick.get_axis(5)
+                    if horiz_move < -0.2:
+                        self.movement[0] = True
+                    else:
+                        self.movement[0] = False
+                    if horiz_move > 0.2:
+                        self.movement[1] = True
+                    else:
+                        self. movement[1] = False
+                    if vert_move < -0.2:
+                        self.movement1[0] = True
+                    else:
+                        self.movement1[0] = False
+                    if vert_move > 0.2:
+                        self.movement1[1] = True
+                    else:
+                        self. movement1[1] = False
+                    # print(fire)
+                    if joystick.get_button(13):
+                        self.movement[0] = True
+                    else:
+                        self.movement[0] = False
+                    if joystick.get_button(14):
+                        self.movement[1] = True
+                    else:
+                        self.movement[1] = False
+                    if joystick.get_button(11):
+                        self.movement1[0] = True
+                    else:
+                        self.movement1[0] = False
+                    if joystick.get_button(12):
+                        self.movement1[1] = True
+                    else:
+                        self.movement1[1] = False
+                    if fire > -0.5:
+                        self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
+                    if joystick.get_button(1) and not self.gameOn:
+                        self.gameOn = True
+                        self.smenu.open = 0
+                        self.menuB.top_rect.x, self.menuB.top_rect.y = self.menuBpos
+                        self.menuB.bottom_rect.x, self.menuB.bottom_rect.y = self.menuBpos
+                        self.smenu.stage = None
+                        self.menuB.text = '<'
+
             self.Bullet.update()
             self.Bullet.render(self.asteroids)
-            self.player.update(self.movement, self.movement1)
+            if self.gameOn: self.player.update(self.movement, self.movement1)
+            self.player.updateAnim()
             self.player.pos[0] %= self.surfW
             self.player.render()
+            if not self.gameOn:
+                self.smenu.update()
+                self.smenu.render()
+                if self.smenu.stage == "open":
+                    self.menuB.draw('menub', xAnimChange=2)
+                if self.smenu.stage == "close":
+                    self.menuB.draw('menub', xAnimChange=-2)
+                else:
+                    self.menuB.draw("menub")
+            # if self.i % 150 == 0 and self.i % 300 != 0:
+            #     self.smenu.change_state("open")
+            # elif self.i % 300 == 0:
+                # self.smenu.change_state("close")
+
+            
             for asteroid in self.asteroids:
                 # if self.i <180: # i use this to pause the asteroids' movement, so i can test something
                 #     asteroid.update()
@@ -160,19 +247,21 @@ class Game:
                     self.asteroids.remove(asteroid)
                     self.poss.remove([asteroid.pos[0], asteroid.pos[1], self.assets["asteroids"][asteroid.size].get_width(), self.assets["asteroids"][asteroid.size].get_height()])
             
-            if self.i % 15 == 0:
-                for x in range(3):
-                    ast = random.randint(0, 5)
-                    astWidth, astHeight = self.assets["asteroids"][ast].get_width(), self.assets["asteroids"][ast].get_height()
-                    pos = [random.randint(0, self.surfW - 1 - astWidth), -astHeight - 1, astWidth, astHeight]
-                    self.asteroids.append(Asteroid(self, self.display, ast, pos)); self.poss.append(pos)
+
+            if self.gameOn:
+                if self.i % 15 == 0:
+                    for x in range(3):
+                        ast = random.randint(0, 5)
+                        astWidth, astHeight = self.assets["asteroids"][ast].get_width(), self.assets["asteroids"][ast].get_height()
+                        pos = [random.randint(0, self.surfW - 1 - astWidth), -astHeight - 1, astWidth, astHeight]
+                        self.asteroids.append(Asteroid(self, self.display, ast, pos)); self.poss.append(pos)
             
-            self.i += 1
+                self.i += 1
+                self.score += 1
 
             self.draw_text("FPS: " + str(round(self.clock.get_fps(), 2)), self.font, pygame.Color("azure"), 10, 10, self.display)
             self.draw_text("Score: " + str(self.score), self.font, pygame.Color("azure"), 10, 22, self.display)
             self.draw_text("High: " + str(self.highscore), self.font, pygame.Color("azure"), 10, 34, self.display)
-            self.score += 1
 
             self.window.blit(pygame.transform.scale(self.display, self.window.get_size()), (0,0))
             pygame.display.update()

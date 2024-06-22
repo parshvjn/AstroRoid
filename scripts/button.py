@@ -15,11 +15,11 @@ class Button:
 
 		# top rectangle 
 		self.top_rect = pygame.Rect(pos,(width,height))
-		self.top_color = '#391339'
+		self.top_color = '#000000'
 
 		# bottom rectangle 
 		self.bottom_rect = pygame.Rect(pos,(width,height))
-		self.bottom_color = '#862d86'
+		self.bottom_color = '#000066'
 		#text
 		self.text_surf = self.font.render(text,True,'#FFFFFF')
 		self.text_rect = self.text_surf.get_rect(center = self.top_rect.center)
@@ -48,17 +48,24 @@ class Button:
 
 	def check_click(self, nameType, resolution):
 		if self.top_rect.collidepoint((pygame.mouse.get_pos()[0]/(resolution[0]/320), pygame.mouse.get_pos()[1]/(resolution[1]/240))):
-			self.top_color = '#df9fdf'
+			self.top_color = '#000000'
 			if pygame.mouse.get_pressed()[0]:
 				self.dynamic_elecation = 0
 				self.pressed = True
 			else:
 				self.dynamic_elecation = self.elevation
 				if self.pressed == True:
-					# if nameType == 'game' and ready:
-					# 	self.game.main()
-					# self.pressed = False
+					if nameType == 'menub':
+						if self.game.smenu.stage == None:
+							if self.game.smenu.open > 10:
+								self.game.smenu.change_state("close")
+								if self.game.firstTime: self.game.firstTime = False
+								self.text = "<"
+							else:
+								self.game.smenu.change_state("open")
+								self.text = ">"
+					self.pressed = False
 					pass
 		else:
 			self.dynamic_elecation = self.elevation
-			self.top_color = '#df9fdf'
+			self.top_color = '#000000'

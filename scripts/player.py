@@ -5,7 +5,8 @@ class Player:
         self.window = window
         self.game = game
         self.color = color
-        self.speed = 2
+        self.origSpeed = 2
+        self.speed = self.origSpeed
         self.animation = self.game.assets[f'ships/{self.color}'].copy()
         self.animationShadow = self.game.assets['shadows/spaceship'].copy()
         self.animationMask = self.game.assets['shipsM'].copy()
@@ -18,6 +19,8 @@ class Player:
         self.animation = self.game.assets[f'ships/{self.color}'].copy()
     
     def update(self, movement = [0,0], movement1 = [0,0]):
+        # self.speed = self.origSpeed
+        # if sum(1 for item in movement if item) == 1 and sum(1 for item in movement1 if item) == 1: self.speed /=2
         if movement[0]:
             self.pos[0] -= self.speed
         if movement[1]:
@@ -26,7 +29,8 @@ class Player:
             self.pos[1] -= self.speed
         if movement1[1] and self.pos[1] <= self.game.surfH - self.animation.img().get_height() - 5:
             self.pos[1] += self.speed
-        
+    
+    def updateAnim(self):
         self.animation.update()
         self.animationShadow.update()
         self.animationMask.update()
