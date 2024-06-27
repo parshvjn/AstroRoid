@@ -58,6 +58,9 @@ class Game:
         self.menuBpos = (self.surfW - self.smenu.open - 30, 100+self.smenu.sH/2-20)
         self.menuB = Button("<", 20, 40, self.menuBpos, 1, self.font, self.display, self)
         self.joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
+        self.coins = 0
+        self.firing = False
+
 
     def draw_text(self, text, font, text_col, x, y, surf):
         img = font.render(text, True, text_col)
@@ -122,6 +125,7 @@ class Game:
                     
 
     def main(self):
+        if self.coins > 0: self.firstTime = False
         self.running = True
         self.i = 0
         self.gameOn = True
@@ -166,7 +170,7 @@ class Game:
                         if event.key == pygame.K_DOWN:
                             self.movement1[1] = True
                         if event.key == pygame.K_SPACE:
-                            self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
+                            self.firing = True
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
                         self.movement = [False, False]
@@ -188,6 +192,8 @@ class Game:
                         self.movement1[0] = False
                     if event.key == pygame.K_DOWN:
                         self.movement1[1] = False
+                    if event.key == pygame.K_SPACE:
+                        self.firing = False
             if self.gameOn:
                 for joystick in self.joysticks:
                     horiz_move = joystick.get_axis(0)
@@ -240,7 +246,8 @@ class Game:
                     ]
                     if fire > -0.5:
                         self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
-
+            
+            if self.firing: self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
             self.Bullet.update()
             self.Bullet.render(self.asteroids)
             if self.gameOn: self.player.update(self.movement, self.movement1)
@@ -294,4 +301,4 @@ class Game:
             self.clock.tick(60)
 
 if __name__ == '__main__':
-    Game().menu()
+    Game().main()

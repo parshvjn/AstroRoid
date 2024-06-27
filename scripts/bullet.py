@@ -1,19 +1,28 @@
 import pygame, random
 from scripts.timer import Timer
+import math
 
 class Bullet:
-    def __init__(self, pos, window, speed, animations, animationsM):
+    def __init__(self, game, pos, window, animations, animationsM, bulletType):
         self.window = window
-        self.speed = speed
+        self.bulletT = bulletType
+        self.speed = bulletType[2]
         self.bpos = pos
         self.animation = animations
         self.animationM = animationsM
+        self.game = game
 
     def update(self):
         self.bpos[1] -= self.speed
+        self.t = pygame.time.get_ticks()/2
+        print(self.bpos[0])
+        self.bpos[0] += self.bulletT[1](self.t)
+        print(self.bpos[0], self.bulletT[1](self.t))
+        # print(self.bpos[0] - (self.game.player.pos[0]+(self.game.assets['ships/blue'].images[0].get_width()/2) - (self.game.assets['rockets/blue'].images[0].get_width()/2)))
         self.animation.update()
         self.animationM.update()
-    
+        print(self.bpos[0])
+        print("________________________________________________________________")
     def render(self):
         mask = pygame.mask.from_surface(self.animationM.img())
         # outline = [(p[0] + self.bpos[0], p[1] + self.bpos[1]) for p in mask.outline(every=1)]
@@ -29,9 +38,23 @@ class BulletManager:
         self.bullets = []
         self.animation = self.game.assets[f"rockets/{self.color}"].copy()
         self.animationM = self.game.assets["rocketsM"].copy()
-        self.speed = 2.5
-        self.cooldown = 1
         self.timer = None
+        self.bulletsT = {  #for the image tilting make a seperate img folder and animate that if using code doesn't work
+            'normal': [0, 0, 2.5, 1],
+            # put price, amplitude, speed, cooldown;
+            'sin': {'type': 'level',
+                    1: [100, lambda x: round(math.sin(x/10) * 5, 0), 5.5, 0.1],
+                    2: [100, lambda x: round(math.sin(x/12) * 5, 0), 5.5, 0.05],
+                    3: [100, lambda x: round(math.sin(x/17) * 5, 0), 5.5, 0.025],
+                    4: [100, lambda x: round(math.sin(x/23) * 5, 0), 5.5, 0.0125],
+                    5: [100, lambda x: round(math.sin(x/28) * 5, 0), 5.5, 0]},
+            'multi': {'type': 'multiple',
+                      1: [100, lambda x: -5, 5, 1],
+                      2: [100, lambda x: 0, 2.5, 1],
+                      3: [100, lambda x: 5, 5, 1]}
+        }
+        self.currentBullet = self.bulletsT['sin']
+        self.blevel = 1
     
     def setColor(self, color):
         self.color = color
@@ -39,7 +62,17 @@ class BulletManager:
 
     
     def shoot(self, pos):
-        if self.timer == None:self.timer = Timer(self.cooldown); self.bullets.append(Bullet(pos, self.window, self.speed, self.animation, self.animationM))
+        if self.timer == None:
+            self.timer = Timer(self.currentBullet[self.blevel][3])
+            if self.currentBullet['type'] == 'level':
+                self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[self.blevel]))
+            else:
+                # for index, bul in enumerate(self.currentBullet):
+                    # if index != 0: self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[index])); print(index)
+                self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[1]))
+                self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[2]))
+                self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[3]))
+                # print(self.bullets)
     
     def update(self):
         for bullet in self.bullets:

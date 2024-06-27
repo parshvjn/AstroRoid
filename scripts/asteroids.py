@@ -19,6 +19,8 @@ class Asteroid:
         self.game.Bullet.bullets.clear()
         self.game.Bullet.timer = None
         self.game.i = 0
+        self.game.coins += int(str(self.game.score)[:-1])
+        print(self.game.score, self.game.coins)
         if self.game.score > self.game.highscore: self.game.highscore = self.game.score
         data = open('saved.txt', 'w')
         data.write("highscore:" + str(self.game.highscore))
@@ -26,8 +28,7 @@ class Asteroid:
         self.game.score = 0
         self.game.gameOn = False
         self.game.killCounter +=1
-
-
+        self.game.firing = False
 
     def render(self, mask = False):
         self.mask = pygame.mask.from_surface(self.game.assets["asteroidsM"][self.size-1])

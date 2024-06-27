@@ -23,6 +23,7 @@ class SMenu:
             if self.open <= 0:
                 self.stage = None
         pygame.draw.rect(self.surf, (0,0,0, 125), pygame.Rect(0, 0, self.sW, self.sH), border_radius= 5)
+        self.game.draw_text(f"Coins: {self.game.coins}", self.game.font, (255,255,255), 5, 5, self.surf)
         # pygame.display.update()
     
     def render(self):
