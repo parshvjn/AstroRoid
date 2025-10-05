@@ -60,6 +60,7 @@ class Game:
         self.joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
         self.coins = 0
         self.firing = False
+        self.fireMult = 0
 
 
     def draw_text(self, text, font, text_col, x, y, surf):
@@ -170,7 +171,7 @@ class Game:
                         if event.key == pygame.K_DOWN:
                             self.movement1[1] = True
                         if event.key == pygame.K_SPACE:
-                            self.firing = True
+                            if self.fireMult == 0: self.fireMult += 1
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
                         self.movement = [False, False]
@@ -192,8 +193,8 @@ class Game:
                         self.movement1[0] = False
                     if event.key == pygame.K_DOWN:
                         self.movement1[1] = False
-                    if event.key == pygame.K_SPACE:
-                        self.firing = False
+                    # if event.key == pygame.K_SPACE:
+                    #     self.fireMult = 0
             if self.gameOn:
                 for joystick in self.joysticks:
                     horiz_move = joystick.get_axis(0)
@@ -247,7 +248,11 @@ class Game:
                     if fire > -0.5:
                         self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
             
-            if self.firing: self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
+            # if self.firing: self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
+            if self.fireMult != 0 and self.fireMult % 4 != 0: self.Bullet.shoot([self.player.pos[0]+(self.assets['ships/blue'].images[0].get_width()/2) - (self.assets['rockets/blue'].images[0].get_width()/2), self.player.pos[1]])
+            print(self.fireMult)
+            if self.fireMult != 0: self.fireMult += 1
+            if self.fireMult == 4: self.fireMult = 0
             self.Bullet.update()
             self.Bullet.render(self.asteroids)
             if self.gameOn: self.player.update(self.movement, self.movement1)

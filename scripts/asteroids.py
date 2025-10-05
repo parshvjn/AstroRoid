@@ -29,6 +29,7 @@ class Asteroid:
         self.game.gameOn = False
         self.game.killCounter +=1
         self.game.firing = False
+        self.game.Bullet.n = 0
 
     def render(self, mask = False):
         self.mask = pygame.mask.from_surface(self.game.assets["asteroidsM"][self.size-1])

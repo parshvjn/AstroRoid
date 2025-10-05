@@ -3,7 +3,7 @@ from scripts.timer import Timer
 import math
 
 class Bullet:
-    def __init__(self, game, pos, window, animations, animationsM, bulletType):
+    def __init__(self, game, pos, window, animations, animationsM, bulletType, id1 = None):
         self.window = window
         self.bulletT = bulletType
         self.speed = bulletType[2]
@@ -11,24 +11,24 @@ class Bullet:
         self.animation = animations
         self.animationM = animationsM
         self.game = game
+        self.id = id1
 
     def update(self):
+        # if self.id == 1: print(self.bpos)
         self.bpos[1] -= self.speed
         self.t = pygame.time.get_ticks()/2
-        print(self.bpos[0])
         self.bpos[0] += self.bulletT[1](self.t)
-        print(self.bpos[0], self.bulletT[1](self.t))
+        # print(self.bpos)
         # print(self.bpos[0] - (self.game.player.pos[0]+(self.game.assets['ships/blue'].images[0].get_width()/2) - (self.game.assets['rockets/blue'].images[0].get_width()/2)))
         self.animation.update()
         self.animationM.update()
-        print(self.bpos[0])
-        print("________________________________________________________________")
+
     def render(self):
-        mask = pygame.mask.from_surface(self.animationM.img())
+        self.mask = pygame.mask.from_surface(self.animationM.img())
         # outline = [(p[0] + self.bpos[0], p[1] + self.bpos[1]) for p in mask.outline(every=1)]
         # pygame.draw.lines(self.window, (255, 0, 255), False, outline, 3)
         self.window.blit(self.animation.img(), self.bpos)
-        return mask
+        return self.mask
 
 class BulletManager:
     def __init__(self, game, window, color):
@@ -49,12 +49,13 @@ class BulletManager:
                     4: [100, lambda x: round(math.sin(x/23) * 5, 0), 5.5, 0.0125],
                     5: [100, lambda x: round(math.sin(x/28) * 5, 0), 5.5, 0]},
             'multi': {'type': 'multiple',
-                      1: [100, lambda x: -5, 5, 1],
-                      2: [100, lambda x: 0, 2.5, 1],
-                      3: [100, lambda x: 5, 5, 1]}
+                      1: [100, lambda x: -5, 5, 0.5],
+                      2: [100, lambda x: 0, 2.5, 0],
+                      3: [100, lambda x: 5, 5, 0]}
         }
-        self.currentBullet = self.bulletsT['sin']
+        self.currentBullet = self.bulletsT['multi']
         self.blevel = 1
+        self.n = 0
     
     def setColor(self, color):
         self.color = color
@@ -63,23 +64,31 @@ class BulletManager:
     
     def shoot(self, pos):
         if self.timer == None:
-            self.timer = Timer(self.currentBullet[self.blevel][3])
             if self.currentBullet['type'] == 'level':
+                self.timer = Timer(self.currentBullet[self.blevel][3])
                 self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[self.blevel]))
             else:
                 # for index, bul in enumerate(self.currentBullet):
                     # if index != 0: self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[index])); print(index)
-                self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[1]))
-                self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[2]))
-                self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[3]))
+                self.n += 1
+                # print(self.n)
+                self.timer = Timer(self.currentBullet[self.n][3])
+                if self.n == 1:
+                    self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[1],1))
+                elif self.n == 2:
+                    self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[2],2))
+                elif self.n == 3:
+                    self.bullets.append(Bullet(self.game, pos, self.window, self.animation, self.animationM, self.currentBullet[3],3))
+                    self.n = 0
                 # print(self.bullets)
     
     def update(self):
         for bullet in self.bullets:
-            bullet.update()
-            # print(bullet.bpos)
+            # Update the bullet's position first
             if bullet.bpos[1] <= -5:
                 self.bullets.remove(bullet)
+            else:
+                bullet.update()
         if self.timer != None:
             if self.timer.count(): self.timer = None
     
@@ -93,6 +102,7 @@ class BulletManager:
                     self.game.poss.remove([mas.pos[0], mas.pos[1], self.game.assets["asteroids"][mas.size].get_width(), self.game.assets["asteroids"][mas.size].get_height()])
                     self.bullets.remove(bullet)
                     asteroids.remove(mas)
+                    print('collide')
                     break
 
         return asteroids
